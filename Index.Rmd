@@ -17,6 +17,21 @@ library(tidyr)
 library(plotly)
 library(ggplot2)
 library(learnr)
+library(agridat)
+library(scico)
+
+data(beaven.barley)
+fallow<-read.csv("Fallow N2.csv")
+
+fallow %>% 
+  ggplot(aes(x=striga, y=yield))+
+  geom_point()
+
+fallow %>%
+  filter(striga>0)%>%
+  ggplot(aes(x=striga, y=yield, color=treat, group=treat))+
+  geom_point()+
+  geom_smooth(method="lm", se = FALSE)
 
 experiment2017<-read.csv("experiment2017.csv")
 interview2019<-read.csv("interview2019.csv")
@@ -38,11 +53,11 @@ First we will show you how to make any graph from `ggplot2` into an interactive 
 Like this:
 
 ```{r introp,echo=FALSE,message=FALSE}
-( LongData %>%
-  ggplot(aes(x=Parcel_type, y=Yield, color=Accept, group=Farmer, gender=Gender, latitude=Latitude, longitude=Longitude))+
-    geom_line(lwd=1.2)+
-      labs(title="Yield by parcel type and willingness\nto participate in new experiment",
-           color="Accept?") ) %>%
+( beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield, row=row))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield") ) %>%
           ggplotly()
 
 ```
@@ -60,35 +75,38 @@ leaflet(experiment2017) %>%
       addControl("Location of farms from 2017 experiment",position="topright")
 ```
 
-Before getting started - we should make sure we install and load the `plotly` and `leaflet` libraries ready for this module, as well as `ggplot2` which you should already have installed, but will still need to be loaded.
+Before getting started - we should make sure we install and load the libraries needed for this module. We need the `plotly` library to make our first interactive graph and the `leaflet` library to make our map. We will also use a dataset from the `agridat` library and a colour palette from the `scico` library. Finally, as usual now, we are also using the `ggplot2` and `dplyr` libraries. You should already have them installed, but they still need to be loaded.
 
 ```
 library(leaflet)
 library(plotly)
+library(scico)
+library(agridat)
 library(ggplot2)
+library(dplyr)
+
 ```
 
 
 
 ## Interactive Plots Using plotly
 
-Let's say we are working with the LongData of the datasets we have used a lot in this course, the `Pulse` survey data. 
+Let's say we are working with the `beaven.barley` dataset that we have used during the exercise on modelling. To show the relationship between the genotypes and the yield, while taking into account the strong impact of the column location, we decide to make a scatterplot placing the different genotypes (`gen`) on the y axis, the column location of our experimental design (`col`) on the x axis, and we colour the points according to the yield of barley (`yield`). 
 
-And we have made a plot to show the trend of income with age, with different colours for each gender. And we have also fitted a smoothed line to show this trend.
-
-Something like this:
+Here is our plot:
 
 ```{r plot1,exercise=TRUE}
 
-LongData %>%
-  ggplot(aes(x=Parcel_type, y=Yield, color=Accept, group=Farmer))+
-    geom_line(lwd=1.2)+
-      labs(title="Yield by parcel type and willingness\nto participate in new experiment",
-           color="Accept?")
+beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield")
 
 ```
 
-That's an interesting graph.
+
+This is an interesting graph. We clearly see the effect of the design structure in columns and we also seem to see some yield differences between the genotypes.
 
 Maybe we want to impress our friends, colleagues and supervisors by using this in a presentation. And we could impress them even more by turning it into an interactive plot, in just two simple steps:
 
@@ -96,11 +114,11 @@ Maybe we want to impress our friends, colleagues and supervisors by using this i
 * Use the function `ggplotly()` on that object 
 
 ```{r plot2,exercise=TRUE}
-p1<-LongData %>%
-  ggplot(aes(x=Parcel_type, y=Yield, color=Accept, group=Farmer))+
-    geom_line(lwd=1.2)+
-      labs(title="Yield by parcel type and willingness\nto participate in new experiment",
-           color="Accept?")
+p1<-beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield")
 
 ggplotly(p1)
 
@@ -113,30 +131,28 @@ The key thing to note is that the `+` cannot get you to this point. You have to 
 Alternatively you can wrap your entire plotting code in brackets and pipe from those brackets into `ggplotly()`
 
 ```{r plot3,exercise=TRUE}
-( LongData %>%
-  ggplot(aes(x=Parcel_type, y=Yield, color=Accept, group=Farmer))+
-    geom_line(lwd=1.2)+
-      labs(title="Yield by parcel type and willingness\nto participate in new experiment",
-           color="Accept?") ) %>%
+( beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield") ) %>%
           ggplotly()
 
 ```
 
-Notice that if you hover over any of the points on the Control or Treatment vertical you see a pop up with the underlying data values.
+Notice that if you hover over any of the points you see a pop up with the underlying data values.
 
-An additional nice feature you can use here is to add in extra aesthetics which will only appear in the pop-up box. So for example if you wanted to also see `Gender`, `Latitude` and `Longitude`.
+An additional nice feature you can use here is to add in extra aesthetics which will only appear in the pop-up box. So for example we could add the `row` structure information:
 
 ```{r plot4,exercise=TRUE}
-( LongData %>%
-  ggplot(aes(x=Parcel_type, y=Yield, color=Accept, group=Farmer, gender=Gender, latitude=Latitude, longitude=Longitude))+
-    geom_line(lwd=1.2)+
-      labs(title="Yield by parcel type and willingness\nto participate in new experiment",
-           color="Accept?") ) %>%
+( beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield, row=row))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield") ) %>%
           ggplotly()
 
 ```
-
-This has worked quite well for displaying the points with lots of additional data included in the pop up box.
 
 Most, but not all, of the things you can customise within `ggplot2` will appear within the interactive plot but sometimes you will come across certain geometries or custom features that do not get converted. And in those cases you tend to get a lot of warning messages, but also an output plot which may be missing some features. 
 
