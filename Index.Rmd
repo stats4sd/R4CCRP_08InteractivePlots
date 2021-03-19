@@ -71,7 +71,7 @@ Like this:
 ```{r intromap,echo=FALSE,message=FALSE}
 leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
-    addProviderTiles('Esri.WorldImagery') %>%
+    addProviderTiles('Esri.DeLorme') %>%
       addControl("Location of farms from 2017 experiment",position="topright")
 ```
 
@@ -215,12 +215,12 @@ As you can see - the default is pretty nice here, using the Open Street Map as a
 We have produced a functional, interactive map in just a few lines. 
 As well as the default Open Street Map appearance, `leaflet` makes it easy to bring in base maps from all sorts of third party sources. These are available through the `addProviderTiles()` function, instead of the `addTiles()` function. 
 
-Let's say we want a satellite image instead:
+Here we're calling a different base Map ('Esri.DeLorme'), which gives a bit more emphasize to the different features present in the area of our farms:
 
 ```{r map3,exercise=TRUE}
 leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude) %>%
-    addProviderTiles('Esri.WorldImagery')
+    addProviderTiles('Esri.DeLorme')
 ```
 
 You can see all of the available layers you can use <a href="http://leaflet-extras.github.io/leaflet-providers/preview/" target="_blank">here  </a>  
@@ -237,7 +237,7 @@ So I will add the "Farmer" column, to associate the name of the farmer to a farm
 ```{r mapagain,exercise=TRUE}
 leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
-    addProviderTiles('Esri.WorldImagery')
+    addProviderTiles('Esri.DeLorme')
 ```
 
 If you click on any blue circle, now you should see the farmer's name for each farm.
@@ -247,7 +247,7 @@ Another useful addition may be to put a title onto this map. The function for th
 ```{r anothermap,exercise=TRUE}
 leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
-    addProviderTiles('Esri.WorldImagery') %>%
+    addProviderTiles('Esri.DeLorme') %>%
       addControl("Location of farms from 2017 experiment")
 ```
 
@@ -256,7 +256,7 @@ By default this appears in the top left below the zoom controls. I'm not sure I 
 ```{r finalmap,exercise=TRUE}
 leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
-    addProviderTiles('Esri.WorldImagery') %>%
+    addProviderTiles('Esri.DeLorme') %>%
       addControl("Location of farms from 2017 experiment",position="topright")
 ```
 
