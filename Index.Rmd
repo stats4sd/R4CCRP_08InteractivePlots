@@ -11,7 +11,6 @@ description: >
 ---
 
 ```{r setup,include=FALSE}
-
 library(leaflet)
 library(dplyr)
 library(plotly)
@@ -28,6 +27,124 @@ Pulse<-readRDS("Pulse.RDS")
   
   
 ## Overview
+
+In this session we will show you how easy it is to make interactive graphics using R. 
+
+First we will show you how to make any graph from `ggplot2` into an interactive graphic, which you can embed in a website or presentation using the `plotly` library. 
+
+Like this:
+
+```{r introp,echo=FALSE,message=FALSE}
+( ggplot(data=Pulse,aes(y=Income,x=Age,col=Gender,Race=Race,Education=Education,PoliticalParty=PoliticalParty))+
+  geom_point()+
+      scale_y_log10()+
+        labs(title="Income by Age and Gender") ) %>%
+          ggplotly()
+
+```
+
+
+
+Then we will show how to make interactive maps using the `leaflet` library. 
+
+Like this:
+
+```{r intromap,echo=FALSE,message=FALSE}
+leaflet(Owls) %>%
+  addCircleMarkers(~Longitude, ~Latitude,popup = ~Comment) %>%
+    addProviderTiles('Esri.WorldImagery') %>%
+      addControl("Owl Sightings on University of Reading Campus: September 2020",position="topright")
+```
+
+Before getting started - we should make sure we install and load the `plotly` and `leaflet` libraries ready for this module, as well as `ggplot2` which you should already have installed, but will still need to be loaded.
+
+```
+library(leaflet)
+library(plotly)
+library(ggplot2)
+```
+
+
+
+## Interactive Plots Using plotly
+
+Let's say we are working with one of the datasets we have used a lot in this course, the `Pulse` survey data. 
+
+And we have made a plot to show the trend of income with age, with different colours for each gender. And we have also fitted a smoothed line to show this trend.
+
+Something like this:
+
+```{r plot1,exercise=TRUE}
+
+ggplot(data=Pulse,aes(y=Income,x=Age,col=Gender))+
+  geom_point()+
+    geom_smooth(se=FALSE)+
+      scale_y_log10()+
+        labs(title="Income by Age and Gender")
+
+```
+
+Quite an interesting graph!
+
+Maybe we want to impress our friends, colleagues and supervisors by using this in a presentation. And we could impress them even more by turning it into an interactive plot, in just two simple steps:
+
+* Store the plot as an object 
+* Use the function `ggplotly()` on that object 
+
+```{r plot2,exercise=TRUE}
+p1<-ggplot(data=Pulse,aes(y=Income,x=Age,col=Gender))+
+  geom_point()+
+    geom_smooth(se=FALSE)+
+      scale_y_log10()+
+        labs(title="Income by Age and Gender")
+
+ggplotly(p1)
+
+```
+
+That's it! Although of course remember to install and load the `plotly` library first. 
+
+
+The key thing to note is that the `+` cannot get you to this point. You have to store the plot as an object and then run the function on that object. 
+Alternatively you can wrap your entire plotting code in brackets and pipe from those brackets into `ggplotly()`
+
+```{r plot3,exercise=TRUE}
+( ggplot(data=Pulse,aes(y=Income,x=Age,col=Gender))+
+  geom_point()+
+    geom_smooth(se=FALSE)+
+      scale_y_log10()+
+        labs(title="Income by Age and Gender") ) %>%
+          ggplotly()
+
+```
+
+Notice that if you hover over any of the points you see a pop up with the underlying data values. And if you hover over any position on the lines, you see the interpolated coordinates. 
+
+
+An additional nice feature you can use here is to add in extra aesthetics which will only appear in the pop-up box. So for example if you wanted to also see `Education`, `Race` and `PoliticalParty`.
+
+(Warning in advance - the code below will produce a lot of warning messages! You will need to scroll down to continue.)
+
+```{r plot4,exercise=TRUE}
+( ggplot(data=Pulse,aes(y=Income,x=Age,col=Gender,Race=Race,Education=Education,PoliticalParty=PoliticalParty))+
+  geom_point()+
+    geom_smooth(se=FALSE)+
+      scale_y_log10()+
+        labs(title="Income by Age and Gender") ) %>%
+          ggplotly()
+
+```
+
+Because it doesn't know how to add the additional columns to the pop up box, what you get is a lot of warning messages, and then no lines included on the final plot. But otherwise this has worked quite well for displaying the points with lots of additional data included in the pop up box.
+
+You will find issues like this occasionally when working with `plotly`. Most, but not all, of the things you can customise within `ggplot2` will appear within the interactive plot but sometimes you will come across certain geometries or custom features that do not get converted. And in those cases you tend to get a lot of warning messages, but also an output plot which may be missing some features. 
+
+So in this case we would have to decide if we want the lines on, or if we want more information from the pop up boxes. 
+
+But, generally, this one additional step works well as a really simple way to liven up a graph for a presentation. Experiment for yourself with any of your own plots!
+
+There are also additional options to customise the interactive features of the plot. You can read more about these <a href="https://plotly-r.com/improving-ggplotly.html" target="_blank">here  </a>  
+
 
 
 ## Interactive Maps Using leaflet
