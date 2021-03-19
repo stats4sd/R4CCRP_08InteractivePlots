@@ -91,7 +91,7 @@ library(dplyr)
 
 ## Interactive Plots Using plotly
 
-Let's say we are working with the `beaven.barley` dataset that we have used during the exercise on modelling. To show the relationship between the genotypes and the yield, while taking into account the strong impact of the column location, we decide to make a scatterplot placing the different genotypes (`gen`) on the y axis, the column location of our experimental design (`col`) on the x axis, and we colour the points according to the yield of barley (`yield`). We needed a strong diverging palette for the colour based on yield and after a few attempts, we find that the `vik` palette from the `scico` package is the one to use.
+Let's say we are working with the `beaven.barley` dataset that we have used during the exercise on modelling. To show the relationship between the genotypes and the yield, while taking into account the strong impact of the column location, we decide to make a scatterplot placing the different genotypes (`gen`) on the y axis, the column location of our experimental design (`col`) on the x axis, and we colour the points according to the yield of barley (`yield`). We needed a strong diverging palette for the colour based on yield and after a few attempts looking at different [options] (https://ggplot2-book.org/scale-colour.html), we find that the `vik` palette from the `scico` package is the one to use.
 
 Here is our plot:
 
@@ -130,16 +130,28 @@ That's it! Although of course remember to install and load the `plotly` library 
 The key thing to note is that the `+` cannot get you to this point. You have to store the plot as an object and then run the function on that object. 
 Alternatively you can wrap your entire plotting code in brackets and pipe from those brackets into `ggplotly()`
 
+
+```{r plot2,exercise=TRUE}
+p2<-beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield")
+
+ggplotly(p2)
+
+```
+
 ```{r plot3, exercise=TRUE}
 
 print("bouh!")
 
 ( beaven.barley%>%
-  ggplot(aes(x=col, y=gen, colour=yield))+
-    geom_point(size=3)+
-      scale_color_scico(palette = "vik")+
-        labs(title="Genotype by Column, coloured by yield") ) %>%
-          ggplotly()
+    ggplot(aes(x=col, y=gen, colour=yield))+
+      geom_point(size=3)+
+        scale_color_scico(palette = "vik")+
+          labs(title="Genotype by Column, coloured by yield") ) %>%
+            ggplotly()
 
 print("bulle")
 
