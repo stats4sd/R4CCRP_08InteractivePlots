@@ -131,7 +131,7 @@ The key thing to note is that the `+` cannot get you to this point. You have to 
 Alternatively you can wrap your entire plotting code in brackets and pipe from those brackets into `ggplotly()`
 
 
-```{r plot2,exercise=TRUE}
+```{r plot2bis,exercise=TRUE}
 p2<-beaven.barley%>%
   ggplot(aes(x=col, y=gen, colour=yield))+
     geom_point(size=3)+
