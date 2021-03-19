@@ -14,14 +14,9 @@ description: >
 library(leaflet)
 library(dplyr)
 library(tidyr)
-library(agridat)
-library(scico)
 library(plotly)
 library(ggplot2)
 library(learnr)
-
-
-data(beaven.barley)
 
 
 experiment2017<-read.csv("experiment2017.csv")
