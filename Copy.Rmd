@@ -11,18 +11,21 @@ description: >
 ---
 
 ```{r setup,include=FALSE}
-
 library(leaflet)
 library(dplyr)
+library(tidyr)
 library(plotly)
 library(ggplot2)
 library(learnr)
 
-Owls <- data.frame(Latitude=c(51.442916,51.437974,51.439703,51.442799),
-             Longitude=c(-0.942046,-0.936982,-0.940198,-0.940327),
-             Comment=c("Tawny; 1st September: 04:12","Tawny; 9th September 23:44","Tawny; 15th September 22:10","Tawny; 18th September 01:39"))
 
-Pulse<-readRDS("Pulse.RDS")
+experiment2017<-read.csv("experiment2017.csv")
+interview2019<-read.csv("interview2019.csv")
+
+MergedData<-inner_join(experiment2017,interview2019,by=c("Farmer"="Name"))
+
+LongData <- MergedData %>%
+  pivot_longer(cols=Control:Treatment, names_to="Plot_type",values_to="Yield")
 
 ```
   
@@ -32,12 +35,12 @@ Pulse<-readRDS("Pulse.RDS")
 
 ## Interactive Maps Using leaflet
 
-Let's say I had spent the month of September on the hunt for sightings of the elusive owls that live on Whiteknights campus. After many sleepless nights I spotted them on four occasions and recorded the coordinates each time. So now I want to make a map of the locations!
+When we're doing on farm experiments, it is sometimes useful to collect the geographical coordinates of the farms and place these on a map, to see if the geographic landscape can be explain some of the results that we see. 
 
-You can see the data below, called `Owls`. I have a column for "Latitude", a column for "Longitude" and a column with a "Comment". 
+So as an example, we are going to place the fictive farms of the experiment2017 dataset on a map using the Latitude and Longitude information in the data. Here is a reminder of how the data looks like:
 
 ```{r,echo=FALSE}
-DT::datatable(Owls)
+DT::datatable(experiment2017)
 
 ```
 
@@ -51,13 +54,13 @@ But by itself, this step just provides a blank canvas.
 
 ```{r map0, exercise=TRUE}
 
-leaflet(Owls)
+leaflet(experiment2017)
 
 ```
 
 As you can see - not much happens!
 
-But we can now think about displaying the data. In this case we have point data that we want to include. A sensible way of plotting points onto a map would be with circles. So we can use a function called `addCircleMarkers()`.
+But we can now think about displaying the data. In this case we have farm data that we want to include. A sensible way of plotting points onto a map would be with circles. So we can use a function called `addCircleMarkers()`.
 
 A very important difference to `ggplot2`, is that to add layers within `leaflet` we use the `%>%` pipe and not the `+`.
 
@@ -67,14 +70,14 @@ So the code looks like this:
 
 
 ```{r map1, exercise=TRUE}
-leaflet(Owls) %>%
+leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude)
 ```
 
-Slightly more useful! We can see the position of our points relative to each other now. But this is what we could have done in `ggplot`. So now what we really want is to see them overlayed on top of a map. We can do this by piping into the `addTiles()` function.
+Slightly more useful! We can see the position of our farms relative to each other now. But this is what we could have done in `ggplot`. So now what we really want is to see them overlayed on top of a map. We can do this by piping into the `addTiles()` function.
 
 ```{r map2, exercise=TRUE}
-leaflet(Owls) %>%
+leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude) %>%
     addTiles()
 ```
@@ -83,12 +86,12 @@ As you can see - the default is pretty nice here, using the Open Street Map as a
 We have produced a functional, interactive map in just a few lines. 
 As well as the default Open Street Map appearance, `leaflet` makes it easy to bring in base maps from all sorts of third party sources. These are available through the `addProviderTiles()` function, instead of the `addTiles()` function. 
 
-Let's say we want a satellite image instead:
+Here we're calling a different base Map ('Esri.DeLorme'), which gives a bit more emphasize to the different features present in the area of our farms:
 
 ```{r map3,exercise=TRUE}
-leaflet(Owls) %>%
+leaflet(experiment2017) %>%
   addCircleMarkers(~Longitude, ~Latitude) %>%
-    addProviderTiles('Esri.WorldImagery')
+    addProviderTiles('Esri.DeLorme')
 ```
 
 You can see all of the available layers you can use <a href="http://leaflet-extras.github.io/leaflet-providers/preview/" target="_blank">here  </a>  
@@ -100,32 +103,32 @@ Some of these base layers are not open source, so do require registration and au
 
 It might also be useful to provide a bit more information onto the map.
 At the moment if I click on one of my points then nothing happens. But within `addCircleMarkers()` I can add a popup box which shows the content of one of the columns of my data when I click on it. Similar to what we saw with `plotly`.
-So I will add my "Comment" column. Again we need a tilde `~` before the name of the column when working in `leaflet`.
+So I will add the "Farmer" column, to associate the name of the farmer to a farm data point in the map. Again we need a tilde `~` before the name of the column when working in `leaflet`.
 
 ```{r mapagain,exercise=TRUE}
-leaflet(Owls) %>%
-  addCircleMarkers(~Longitude, ~Latitude,popup = ~Comment) %>%
-    addProviderTiles('Esri.WorldImagery')
+leaflet(experiment2017) %>%
+  addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
+    addProviderTiles('Esri.DeLorme')
 ```
 
-If you click on any blue circle, now you should see the comment!
+If you click on any blue circle, now you should see the farmer's name for each farm.
 
 Another useful addition may be to put a title onto this map. The function for this doesn't really have an intuitive name: `addControl()`
 
 ```{r anothermap,exercise=TRUE}
-leaflet(Owls) %>%
-  addCircleMarkers(~Longitude, ~Latitude,popup = ~Comment) %>%
-    addProviderTiles('Esri.WorldImagery') %>%
-      addControl("Owl Sightings on University of Reading Campus: September 2020")
+leaflet(experiment2017) %>%
+  addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
+    addProviderTiles('Esri.DeLorme') %>%
+      addControl("Location of farms from 2017 experiment")
 ```
 
 By default this appears in the top left below the zoom controls. I'm not sure I like it there, so instead I will move it to the top right instead.
 
 ```{r finalmap,exercise=TRUE}
-leaflet(Owls) %>%
-  addCircleMarkers(~Longitude, ~Latitude,popup = ~Comment) %>%
-    addProviderTiles('Esri.WorldImagery') %>%
-      addControl("Owl Sightings on University of Reading Campus: September 2020",position="topright")
+leaflet(experiment2017) %>%
+  addCircleMarkers(~Longitude, ~Latitude,popup = ~Farmer) %>%
+    addProviderTiles('Esri.DeLorme') %>%
+      addControl("Location of farms from 2017 experiment",position="topright")
 ```
 
 And I think I am now happy with my map! 
