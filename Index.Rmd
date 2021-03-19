@@ -124,6 +124,19 @@ ggplotly(p1)
 
 ```
 
+huh... 
+
+```{r plot2bis2,exercise=TRUE}
+p2<-beaven.barley%>%
+  ggplot(aes(x=col, y=gen, colour=yield))+
+    geom_point(size=3)+
+      scale_color_scico(palette = "vik")+
+        labs(title="Genotype by Column, coloured by yield")
+
+ggplotly(p2)
+
+```
+
 That's it! Although of course remember to install and load the `plotly` library first. 
 
 
