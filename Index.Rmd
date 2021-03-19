@@ -14,24 +14,15 @@ description: >
 library(leaflet)
 library(dplyr)
 library(tidyr)
+library(agridat)
+library(scico)
 library(plotly)
 library(ggplot2)
 library(learnr)
-library(agridat)
-library(scico)
+
 
 data(beaven.barley)
-fallow<-read.csv("Fallow N2.csv")
 
-fallow %>% 
-  ggplot(aes(x=striga, y=yield))+
-  geom_point()
-
-fallow %>%
-  filter(striga>0)%>%
-  ggplot(aes(x=striga, y=yield, color=treat, group=treat))+
-  geom_point()+
-  geom_smooth(method="lm", se = FALSE)
 
 experiment2017<-read.csv("experiment2017.csv")
 interview2019<-read.csv("interview2019.csv")
@@ -39,7 +30,7 @@ interview2019<-read.csv("interview2019.csv")
 MergedData<-inner_join(experiment2017,interview2019,by=c("Farmer"="Name"))
 
 LongData <- MergedData %>%
-  pivot_longer(cols=Control:Treatment, names_to="Parcel_type",values_to="Yield")
+  pivot_longer(cols=Control:Treatment, names_to="Plot_type",values_to="Yield")
 
 ```
   
